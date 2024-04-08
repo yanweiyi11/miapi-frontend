@@ -17,7 +17,7 @@ const UpdateModal: React.FC<Props> = (props) => {
   const formRef = useRef<ProFormInstance>();
 
   useEffect(() => {
-    formRef.current?.setFieldsValue(values)
+    formRef.current?.setFieldsValue(values);
   }, [values]);
 
   return (
