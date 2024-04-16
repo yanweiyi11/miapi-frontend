@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
  * @constructor
  */
 const Index: React.FC = () => {
-  const finalPageSize = 15;
+  const finalPageSize = 10;
 
   const [loading, setLoading] = useState(false);
   const [list, setList] = useState<API.InterfaceInfo[]>([]);
@@ -62,7 +62,7 @@ const Index: React.FC = () => {
           pageSize: finalPageSize,
           total: total,
           onChange: (page: number, pageSize: number) => {
-            loadData(page, pageSize);
+            loadData(page, pageSize).then(() => {});
           },
         }}
       />

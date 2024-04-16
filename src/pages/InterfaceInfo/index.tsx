@@ -16,7 +16,7 @@ import React, { useEffect, useState } from 'react';
 const Index: React.FC = () => {
   const [invokeLoading, setInvokeLoading] = useState(false);
   const [data, setData] = useState<API.InterfaceInfo>();
-  const [invokRes, setInvokRes] = useState<any>();
+  const [invokeRes, setInvokeRes] = useState<any>();
   const params = useParams();
 
   const loadData = async () => {
@@ -47,7 +47,7 @@ const Index: React.FC = () => {
         id: Number(params.id),
         ...values,
       });
-      setInvokRes(res.data);
+      setInvokeRes(res.data);
       message.success('请求成功');
     } catch (e) {
       message.error('请求失败');
@@ -93,7 +93,7 @@ const Index: React.FC = () => {
       </Card>
       <Divider />
       <Card title={'返回结果'}>
-        <Spin spinning={invokeLoading}>{invokRes}</Spin>
+        <Spin spinning={invokeLoading}>{invokeRes}</Spin>
       </Card>
     </PageContainer>
   );

@@ -18,7 +18,6 @@ import {
 } from '@ant-design/pro-components';
 import '@umijs/max';
 import { Button, Drawer, message } from 'antd';
-import type { SortOrder } from 'antd/lib/table/interface';
 import React, { useRef, useState } from 'react';
 
 const TableList: React.FC = () => {
@@ -277,40 +276,43 @@ const TableList: React.FC = () => {
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
-        <a
-          key="config"
-          onClick={async () => {
-            if (record.status === 1) {
-              message.info('该接口已发布');
-              return;
-            }
-            const success = await handleOnline(record);
-            if (success) {
-              if (actionRef.current) {
-                actionRef.current.reload();
+        record.status === 0 ? (
+          <a
+            key="config"
+            onClick={async () => {
+              if (record.status === 1) {
+                message.info('该接口已发布');
+                return;
               }
-            }
-          }}
-        >
-          发布
-        </a>,
-        <a
-          key="config"
-          onClick={async () => {
-            if (record.status === 0) {
-              message.info('该接口已下线');
-              return;
-            }
-            const success = await handleOffline(record);
-            if (success) {
-              if (actionRef.current) {
-                actionRef.current.reload();
+              const success = await handleOnline(record);
+              if (success) {
+                if (actionRef.current) {
+                  actionRef.current.reload();
+                }
               }
-            }
-          }}
-        >
-          下线
-        </a>,
+            }}
+          >
+            发布
+          </a>
+        ) : record.status === 1 ? (
+          <a
+            key="config"
+            onClick={async () => {
+              if (record.status === 0) {
+                message.info('该接口已下线');
+                return;
+              }
+              const success = await handleOffline(record);
+              if (success) {
+                if (actionRef.current) {
+                  actionRef.current.reload();
+                }
+              }
+            }}
+          >
+            下线
+          </a>
+        ) : null,
         <a
           key="config"
           onClick={() => {
@@ -345,6 +347,7 @@ const TableList: React.FC = () => {
         search={{
           labelWidth: 120,
         }}
+        scroll={{ x: true }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -356,11 +359,7 @@ const TableList: React.FC = () => {
             <PlusOutlined /> 新建
           </Button>,
         ]}
-        request={async (
-          params,
-          sort: Record<string, SortOrder>,
-          filter: Record<string, (string | number)[] | null>,
-        ) => {
+        request={async (params) => {
           const res = await listInterfaceInfoByPageUsingGet({ ...params });
           if (res?.data) {
             return {

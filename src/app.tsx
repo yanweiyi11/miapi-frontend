@@ -3,7 +3,7 @@ import { getLoginUserUsingGet } from '@/services/miapi-backend/userController';
 import { LinkOutlined } from '@ant-design/icons';
 import { SettingDrawer } from '@ant-design/pro-components';
 import type { RunTimeLayoutConfig } from '@umijs/max';
-import { Link, history } from '@umijs/max';
+import { history, Link } from '@umijs/max';
 import { requestConfig } from './requestConfig';
 
 const isDev = process.env.NODE_ENV === 'development';
@@ -13,10 +13,10 @@ const loginPath = '/user/login';
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
 export async function getInitialState(): Promise<InitialState> {
+  // 当页面首次加载时，获取要全局保存的数据，比如用户登录信息
   const state: InitialState = {
     loginUser: undefined,
-  };
-  // 当页面首次加载时，获取要全局保存的数据，比如用户信息
+  }
   try {
     const res = await getLoginUserUsingGet();
     if (res.data) {
