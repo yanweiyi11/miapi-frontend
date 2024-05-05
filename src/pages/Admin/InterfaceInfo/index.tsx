@@ -1,5 +1,3 @@
-import CreateModal from '@/pages/Admin/InterfaceInfo/components/CreateModal';
-import UpdateModal from '@/pages/Admin/InterfaceInfo/components/UpdateModal';
 import {
   addInterfaceInfoUsingPost,
   deleteInterfaceInfoUsingPost,
@@ -19,8 +17,10 @@ import {
 import '@umijs/max';
 import { Button, Drawer, message } from 'antd';
 import React, { useRef, useState } from 'react';
+import CreateModal from './components/CreateModal';
+import UpdateModal from './components/UpdateModal';
 
-const TableList: React.FC = () => {
+const InterfaceInfo: React.FC = () => {
   /**
    * @en-US Pop-up window of new window
    * @zh-CN 新建窗口的弹窗
@@ -34,7 +34,7 @@ const TableList: React.FC = () => {
   const [showDetail, setShowDetail] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const [currentRow, setCurrentRow] = useState<API.InterfaceInfo>();
-  const [selectedRowsState, setSelectedRows] = useState<API.RuleListItem[]>([]);
+  const [selectedRowsState, setSelectedRows] = useState<API.InterfaceInfo[]>([]);
 
   /**
    * @en-US Add node
@@ -49,8 +49,9 @@ const TableList: React.FC = () => {
       });
       hide();
       message.success('创建成功');
+      handleModalOpen(false);
       return true;
-    } catch (error: any) {
+    } catch (error) {
       hide();
       message.error('创建失败，' + error.message);
       return false;
@@ -67,18 +68,66 @@ const TableList: React.FC = () => {
     if (!currentRow) {
       return;
     }
-    const hide = message.loading('正在更新');
+    const hide = message.loading('修改中...');
     try {
-      await updateInterfaceInfoUsingPost({
-        id: currentRow.id,
-        ...fields,
-      });
+      await updateInterfaceInfoUsingPost({ ...fields });
       hide();
       message.success('更新成功');
       return true;
-    } catch (error: any) {
+    } catch (error) {
       hide();
-      message.error('更新失败，', error.message);
+      message.error('更新失败，' + error.message);
+      return false;
+    }
+  };
+
+  /**
+   *  Delete node
+   * @zh-CN 发布节点
+   *
+   * @param record
+   */
+  const handleOnline = async (record: API.IdRequest) => {
+    const hide = message.loading('发布中');
+    if (!record) return true;
+    try {
+      await onlineInterfaceInfoUsingPost({
+        id: record.id,
+      });
+      hide();
+      message.success('发布成功');
+      actionRef.current?.reload();
+      return true;
+    } catch (error) {
+      hide();
+      message.error('发布失败，' + error.message);
+      return false;
+    }
+  };
+
+  /**
+   * 下线接口
+   *
+   * @param record
+   */
+  const handleOffline = async (record: API.IdRequest) => {
+    const hide = message.loading('发布中');
+    // 如果接口数据为空，直接返回true
+    if (!record) return true;
+    try {
+      // 调用下线接口的POST请求方法
+      await offlineInterfaceInfoUsingPost({
+        // 传递接口的id参数
+        id: record.id,
+      });
+      hide();
+      message.success('下线成功');
+      // 重新加载数据
+      actionRef.current?.reload();
+      return true;
+    } catch (error) {
+      hide();
+      message.error('下线失败，' + error.message);
       return false;
     }
   };
@@ -93,156 +142,69 @@ const TableList: React.FC = () => {
     const hide = message.loading('正在删除');
     if (!record) return true;
     try {
-      await deleteInterfaceInfoUsingPost({ id: record.id });
+      await deleteInterfaceInfoUsingPost({
+        id: record.id,
+      });
       hide();
       message.success('删除成功');
+      actionRef.current?.reload();
       return true;
-    } catch (error: any) {
+    } catch (error) {
       hide();
-      message.error('删除失败，', error.message);
+      message.error('删除失败，' + error.message);
       return false;
     }
   };
 
-  /**
-   * 发布接口
-   *
-   * @param record
-   */
-  const handleOnline = async (record: API.IdRequest) => {
-    const hide = message.loading('发布中');
-    if (!record) return true;
-    try {
-      await onlineInterfaceInfoUsingPost({ id: record.id });
-      hide();
-      message.success('发布成功');
-      return true;
-    } catch (error: any) {
-      hide();
-      message.error('发布失败，', error.message);
-      return false;
-    }
-  };
-
-  /**
-   * 下线接口
-   *
-   * @param record
-   */
-  const handleOffline = async (record: API.IdRequest) => {
-    const hide = message.loading('正在下线');
-    if (!record) return true;
-    try {
-      await offlineInterfaceInfoUsingPost({ id: record.id });
-      hide();
-      message.success('下线成功');
-      return true;
-    } catch (error: any) {
-      hide();
-      message.error('下线失败，', error.message);
-      return false;
-    }
-  };
-
-  /**
-   * @en-US International configuration
-   * @zh-CN 国际化配置
-   * */
-
+  // 把变量的类型改成接口的类型
   const columns: ProColumns<API.InterfaceInfo>[] = [
     {
-      title: 'ID',
+      title: 'id',
       dataIndex: 'id',
       valueType: 'index',
     },
     {
       title: '接口名称',
+      //name 对应后端的字段名
       dataIndex: 'name',
+      // 展示文本
       valueType: 'text',
       formItemProps: {
-        rules: [
-          {
-            required: true,
-            max: 50,
-          },
-        ],
+        required: true,
       },
     },
     {
       title: '描述',
+      //description 对应后端的字段名
       dataIndex: 'description',
+      // 展示的文本为富文本编辑器
       valueType: 'textarea',
-      formItemProps: {
-        rules: [
-          {
-            max: 100,
-          },
-        ],
-      },
-    },
-    {
-      title: '接口地址',
-      dataIndex: 'url',
-      valueType: 'text',
-      formItemProps: {
-        rules: [
-          {
-            required: true,
-            max: 500,
-          },
-        ],
-      },
-    },
-    {
-      title: '请求参数',
-      dataIndex: 'requestParams',
-      valueType: 'jsonCode',
-      formItemProps: {
-        rules: [
-          {
-            max: 1000,
-          },
-        ],
-      },
     },
     {
       title: '请求方法',
       dataIndex: 'method',
+      // 展示的文本为富文本编辑器
       valueType: 'text',
-      formItemProps: {
-        rules: [
-          {
-            required: true,
-            pattern: /^(GET|POST|PUT|PATCH)$/,
-          },
-        ],
-      },
+    },
+    {
+      title: 'url',
+      dataIndex: 'url',
+      valueType: 'text',
+    },
+    {
+      title: '请求参数',
+      dataIndex: 'requestParams',
+      valueType: 'text',
     },
     {
       title: '请求头',
       dataIndex: 'requestHeader',
-      valueType: 'jsonCode',
-      formItemProps: {
-        rules: [
-          {
-            required: true,
-            max: 3000,
-          },
-        ],
-      },
+      valueType: 'textarea',
     },
     {
       title: '响应头',
       dataIndex: 'responseHeader',
-      valueType: 'jsonCode',
-      formItemProps: {
-        rules: [
-          {
-            required: true,
-            max: 3000,
-          },
-        ],
-      },
+      valueType: 'textarea',
     },
     {
       title: '状态',
@@ -276,43 +238,6 @@ const TableList: React.FC = () => {
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
-        record.status === 0 ? (
-          <a
-            key="config"
-            onClick={async () => {
-              if (record.status === 1) {
-                message.info('该接口已发布');
-                return;
-              }
-              const success = await handleOnline(record);
-              if (success) {
-                if (actionRef.current) {
-                  actionRef.current.reload();
-                }
-              }
-            }}
-          >
-            发布
-          </a>
-        ) : record.status === 1 ? (
-          <a
-            key="config"
-            onClick={async () => {
-              if (record.status === 0) {
-                message.info('该接口已下线');
-                return;
-              }
-              const success = await handleOffline(record);
-              if (success) {
-                if (actionRef.current) {
-                  actionRef.current.reload();
-                }
-              }
-            }}
-          >
-            下线
-          </a>
-        ) : null,
         <a
           key="config"
           onClick={() => {
@@ -320,21 +245,36 @@ const TableList: React.FC = () => {
             setCurrentRow(record);
           }}
         >
-          更新
+          配置
         </a>,
         <a
-          key="config"
-          onClick={async () => {
-            const success = await handleRemove(record);
-            if (success) {
-              if (actionRef.current) {
-                actionRef.current.reload();
-              }
-            }
+          key="remove"
+          onClick={() => {
+            handleRemove(record);
           }}
         >
           删除
         </a>,
+        record.status === 0 ? (
+          <a
+            key="online"
+            onClick={() => {
+              handleOnline(record);
+            }}
+          >
+            发布
+          </a>
+        ) : null,
+        record.status === 1 ? (
+          <a
+            key="offline"
+            onClick={() => {
+              handleOffline(record);
+            }}
+          >
+            下线
+          </a>
+        ) : null,
       ],
     },
   ];
@@ -347,7 +287,6 @@ const TableList: React.FC = () => {
         search={{
           labelWidth: 120,
         }}
-        scroll={{ x: true }}
         toolBarRender={() => [
           <Button
             type="primary"
@@ -360,19 +299,25 @@ const TableList: React.FC = () => {
           </Button>,
         ]}
         request={async (params) => {
-          const res = await listInterfaceInfoByPageUsingGet({ ...params });
+          const res = await listInterfaceInfoByPageUsingGet({
+            ...params,
+          });
+          // 如果后端请求给你返回了接口信息
           if (res?.data) {
+            // 返回一个包含数据、成功状态和总数的对象
             return {
               data: res?.data.records || [],
               success: true,
-              total: res.data.total || 0,
+              total: res?.data.total || 0,
+            };
+          } else {
+            // 如果数据不存在，返回一个空数组，失败状态和零总数
+            return {
+              data: [],
+              success: false,
+              total: 0,
             };
           }
-          return {
-            data: [],
-            success: false,
-            total: 0,
-          };
         }}
         columns={columns}
         rowSelection={{
@@ -402,8 +347,7 @@ const TableList: React.FC = () => {
         >
           <Button
             onClick={async () => {
-              // TODO 批量删除
-              // await handleRemove(selectedRowsState);
+              await handleRemove(selectedRowsState);
               setSelectedRows([]);
               actionRef.current?.reloadAndRest?.();
             }}
@@ -413,25 +357,21 @@ const TableList: React.FC = () => {
           <Button type="primary">批量审批</Button>
         </FooterToolbar>
       )}
-
       <CreateModal
-        onSubmit={async (value) => {
-          const success = await handleAdd(value);
-          if (success) {
-            handleModalOpen(false);
-            if (actionRef.current) {
-              actionRef.current.reload();
-            }
-          }
-        }}
+        columns={columns}
+        // 当取消按钮被点击时，设置更新模态框为 false 以隐藏模态窗口
         onCancel={() => {
           handleModalOpen(false);
         }}
-        columns={columns}
+        // 当用户点击提交按钮之后，调用 handleAdd 函数处理提交的数据，去请求后端添加数据
+        onSubmit={(values) => {
+          handleAdd(values);
+        }}
+        // 根据更新窗口的值决定模态窗口是否显示
         visible={createModalOpen}
-      ></CreateModal>
-
+      />
       <UpdateModal
+        columns={columns}
         onSubmit={async (value) => {
           const success = await handleUpdate(value);
           if (success) {
@@ -450,7 +390,6 @@ const TableList: React.FC = () => {
         }}
         visible={updateModalOpen}
         values={currentRow || {}}
-        columns={columns}
       />
 
       <Drawer
@@ -479,4 +418,4 @@ const TableList: React.FC = () => {
     </PageContainer>
   );
 };
-export default TableList;
+export default InterfaceInfo;

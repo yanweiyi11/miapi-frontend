@@ -116,6 +116,7 @@ declare namespace API {
     requestHeader?: string;
     requestParams?: string;
     responseHeader?: string;
+    sdkMethodName?: string;
     status?: number;
     updateTime?: string;
     url?: string;
@@ -159,6 +160,7 @@ declare namespace API {
     requestHeader?: string;
     requestParams?: string;
     responseHeader?: string;
+    sdkMethodName?: string;
     status?: number;
     totalNum?: number;
     updateTime?: string;

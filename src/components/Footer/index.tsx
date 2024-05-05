@@ -1,30 +1,35 @@
-import { GithubOutlined, IdcardOutlined } from '@ant-design/icons';
+import { GithubOutlined } from '@ant-design/icons';
 import { DefaultFooter } from '@ant-design/pro-components';
 import React from 'react';
 
-const AppFooter: React.FC = () => {
-  const currentYear = new Date().getFullYear();
+const Footer: React.FC = () => {
   return (
-    <>
-      <DefaultFooter
-        copyright={`${currentYear} yanweiyi 版权所有`}
-        links={[
-          {
-            key: 'github',
-            title: <><GithubOutlined /> GitHub</>,
-            href: 'https://github.com/yanweiyi11',
-            blankTarget: true,
-          },
-          {
-            key: '工信部',
-            title: <><IdcardOutlined /> 桂ICP备2024026268号-1</>,
-            href: 'https://beian.miit.gov.cn/',
-            blankTarget: true,
-          },
-        ]}
-      />
-    </>
+    <DefaultFooter
+      style={{
+        background: 'none',
+      }}
+      links={[
+        {
+          key: 'MiAPI 开放平台',
+          title: 'MiAPI 开放平台',
+          href: 'https://pro.ant.design',
+          blankTarget: true,
+        },
+        {
+          key: 'github',
+          title: <GithubOutlined />,
+          href: 'https://github.com/ant-design/ant-design-pro',
+          blankTarget: true,
+        },
+        {
+          key: 'Ant Design',
+          title: 'Ant Design',
+          href: 'https://ant.design',
+          blankTarget: true,
+        },
+      ]}
+    />
   );
 };
 
-export default AppFooter;
+export default Footer;

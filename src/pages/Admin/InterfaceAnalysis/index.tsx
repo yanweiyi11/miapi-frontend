@@ -1,7 +1,6 @@
 import { listTopInvokeInterfaceUsingGet } from '@/services/miapi-backend/analysisController';
 import { PageContainer } from '@ant-design/pro-components';
 import '@umijs/max';
-import { message } from 'antd';
 import ReactECharts from 'echarts-for-react';
 import React, { useEffect, useState } from 'react';
 
@@ -19,13 +18,13 @@ const InterfaceAnalysis: React.FC = () => {
           setData(res.data);
         }
       });
-    } catch (e: any) {
-      message.warning('加载失败，请重试');
+    } catch (error) {
+      console.log(error);
     }
   }, []);
 
-  // 映射，{ value: 1048, name: 'Search Engine' },
-  const charData = data.map((item) => {
+  // 映射：{ value: 1048, name: 'Search Engine' },
+  const chartData = data.map((item) => {
     return {
       value: item.totalNum,
       name: item.name,
@@ -34,7 +33,7 @@ const InterfaceAnalysis: React.FC = () => {
 
   const option = {
     title: {
-      text: '接口调用次数TOP5',
+      text: '调用次数最多的接口TOP5',
       left: 'center',
     },
     tooltip: {
@@ -49,7 +48,7 @@ const InterfaceAnalysis: React.FC = () => {
         name: 'interface',
         type: 'pie',
         radius: '50%',
-        data: charData,
+        data: chartData,
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
@@ -60,6 +59,7 @@ const InterfaceAnalysis: React.FC = () => {
       },
     ],
   };
+
   return (
     <PageContainer>
       <ReactECharts option={option} />

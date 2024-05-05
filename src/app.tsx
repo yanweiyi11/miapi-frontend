@@ -3,9 +3,8 @@ import { getLoginUserUsingGet } from '@/services/miapi-backend/userController';
 import { LinkOutlined } from '@ant-design/icons';
 import { SettingDrawer } from '@ant-design/pro-components';
 import type { RunTimeLayoutConfig } from '@umijs/max';
-import { history, Link } from '@umijs/max';
+import { Link, history } from '@umijs/max';
 import { requestConfig } from './requestConfig';
-
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
 
@@ -15,16 +14,21 @@ const loginPath = '/user/login';
 export async function getInitialState(): Promise<InitialState> {
   // 当页面首次加载时，获取要全局保存的数据，比如用户登录信息
   const state: InitialState = {
+    // 初始化登录用户的状态，初始值设为undefined
     loginUser: undefined,
-  }
+  };
   try {
+    // 调用getLoginUserUsingGET()函数，尝试获取当前已经登录的用户信息
     const res = await getLoginUserUsingGet();
+    // 如果从后端获取的数据不为空，就把获取到的用户数据赋值给state.loginUser
     if (res.data) {
       state.loginUser = res.data;
     }
+    // 如果在获取用户信息的过程中发生错误，就把页面重定向到登录页面
   } catch (error) {
     history.push(loginPath);
   }
+  // 返回修改后的状态
   return state;
 }
 
@@ -72,11 +76,11 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
     ],
     links: isDev
       ? [
-        <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
-          <LinkOutlined />
-          <span>OpenAPI 文档</span>
-        </Link>,
-      ]
+          <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
+            <LinkOutlined />
+            <span>OpenAPI 文档</span>
+          </Link>,
+        ]
       : [],
     menuHeaderRender: undefined,
     // 自定义 403 页面
@@ -112,6 +116,4 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
  * 它基于 axios 和 ahooks 的 useRequest 提供了一套统一的网络请求和错误处理方案。
  * @doc https://umijs.org/docs/max/request#配置
  */
-export const request = {
-  ...requestConfig,
-};
+export const request = requestConfig;
